@@ -27,7 +27,7 @@ const verifyEmail = async (req: Request, res: Response, next: NextFunction) => {
 const forgotPassword = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
   } catch (err) {
