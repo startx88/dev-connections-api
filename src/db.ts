@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { defautlConfig } from "./config";
+import { DatabaseConnectionError } from "./errors";
 
 // database connection
 const connectDb = async (cb: Function) => {
@@ -14,7 +15,7 @@ const connectDb = async (cb: Function) => {
       cb();
     }
   } catch (err) {
-    console.log("db error", err);
+    new DatabaseConnectionError();
   }
 };
 

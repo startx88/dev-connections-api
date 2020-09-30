@@ -2,6 +2,7 @@ import express from "express";
 import path from "path";
 import { connectDb } from "./db";
 import { cors } from "./middleware/cors";
+import { errorHandler } from "./middleware/error-handler";
 import { authRouter } from "./routes/auth";
 
 // app
@@ -17,8 +18,6 @@ app.use(express.static(path.resolve(__dirname, "..", "public")));
 // cors
 app.use(cors);
 
-// default route
-
 const {
   PORT = process.env.PORT || 4200,
   SECRET_KEY = process.env.SECRET_KEY,
@@ -26,6 +25,9 @@ const {
 
 // routes
 app.use("/api/auth", authRouter);
+
+// error handler
+app.use(errorHandler);
 
 // listen
 
