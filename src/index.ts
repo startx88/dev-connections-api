@@ -9,6 +9,7 @@ import { skillRouter } from "./routes/skill";
 import { designationRouter } from "./routes/designation";
 import { NotFoundError } from "./errors";
 import { userRouter } from "./routes/user";
+import { postRouter } from "./routes/post";
 
 // app
 const app = express();
@@ -59,6 +60,7 @@ app.use("/api/user", userRouter);
 app.use("/api/profile", profileRouter);
 app.use("/api/skill", skillRouter);
 app.use("/api/designation", designationRouter);
+app.use("/api/post", postRouter);
 
 // error handler
 // Error
