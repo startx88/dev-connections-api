@@ -1,78 +1,112 @@
 import mongoose from "mongoose";
+import { Password } from "../utility";
+import { randomBytes } from "crypto";
 const Schema = mongoose.Schema;
 
-// roles
-enum Role {
-  user,
-  admin,
-}
-
-// user attributes
-interface UserAttrs {
+// user interface
+export interface UserAttr {
   firstname: string;
   lastname: string;
+  username?: string;
   email: string;
   password: string;
   mobile: string;
-  role?: Role;
-  verify?: boolean;
+  role: string;
   token?: string;
   expireToken?: Date;
+  verify?: Boolean;
+  avatar?: string;
   active?: boolean;
-  insertAt?: Date;
 }
 
-// user doc
-interface UserDoc extends mongoose.Document {
+// doc type
+export interface UserDoc extends mongoose.Document {
   firstname: string;
   lastname: string;
+  username?: string;
   email: string;
   password: string;
   mobile: string;
-  role?: Role;
-  verify?: boolean;
+  role: string;
   token?: string;
   expireToken?: Date;
+  verify?: Boolean;
+  avatar?: string;
   active?: boolean;
-  insertAt?: Date;
 }
 
-// user model
+// model type
 interface UserModel extends mongoose.Model<UserDoc> {
-  build(attrs: UserAttrs): UserDoc;
+  createUser(attrs: UserAttr): UserDoc;
+  generateToken(): string;
 }
 
 // user schema
 const userSchema = new Schema(
   {
-    firstname: { type: String, required: true },
-    lastname: { type: String, required: true },
-    email: { type: String, required: true, unique: true, index: true },
-    password: { type: String, required: true },
-    role: { type: Number, default: 0, enum: Role },
-    mobile: { type: String, required: true, unique: true, index: true },
+    firstname: { type: String, required: true, trim: true },
+    lastname: { type: String, required: true, trim: true },
+    username: { type: String, trim: true, index: true },
+    email: {
+      type: String,
+      required: true,
+      trim: true,
+      unique: true,
+      index: true,
+    },
+    password: { type: String, required: true, trim: true },
+    mobile: {
+      type: String,
+      required: true,
+      trim: true,
+      unique: true,
+      index: true,
+    },
+    role: {
+      type: String,
+      default: "user",
+      enum: ["user", "admin"],
+    },
+    token: { type: String, trim: true },
+    expireToken: { type: String, trim: true },
     verify: { type: Boolean, default: false },
-    token: { type: String },
-    expireToken: { type: Date },
-    active: { type: Boolean, default: true },
-    insertAt: { type: Date, default: Date.now },
+    avatar: { type: String, trim: true },
+    active: { type: String, trim: true, default: true },
   },
   {
     toJSON: {
-      transform(doc, ret) {
-        delete ret.__v;
+      transform(doc, _ret) {
+        delete _ret.__v;
       },
     },
   }
 );
 
-// create build user method
-userSchema.statics.build = (attr: UserAttrs) => {
-  return new User(attr);
+// pre save hooks
+userSchema.pre("save", async function (done) {
+  if (this.isModified("password")) {
+    const password = await Password.toHash(this.get("password"));
+    this.set("password", password);
+  }
+  const isAdmin = ["admin", "superadmin"].includes(this.get("role"))
+    ? true
+    : false;
+  this.set("verify", isAdmin);
+  done();
+});
+
+// create user
+userSchema.statics.createUser = (attrs: UserAttr) => {
+  return new User(attrs);
 };
 
-// user model
-const User = mongoose.model("User", userSchema);
+// generate token
+userSchema.statics.generateToken = async () => {
+  let token = await randomBytes(32);
+  return token;
+};
+
+const User = mongoose.model<UserDoc, UserModel>("User", userSchema);
 
 // export
 export { User };

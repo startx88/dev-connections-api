@@ -9,10 +9,13 @@ interface IConfig {
   DB: string;
   PORT: number | string;
   SECRET_KEY: string;
+  EMAIL_API_KEY: string;
 }
 
 // global configuration
-const globalConfig = {};
+const globalConfig = {
+  EMAIL_API_KEY: process.env.EMAIL_API_KEY,
+};
 
 // configuration
 let config = {};
