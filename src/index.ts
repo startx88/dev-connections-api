@@ -6,7 +6,9 @@ import { cors, errorHandler } from "./middleware";
 import { authRouter } from "./routes/auth";
 import { profileRouter } from "./routes/profile";
 import { skillRouter } from "./routes/skill";
+import { designationRouter } from "./routes/designation";
 import { NotFoundError } from "./errors";
+
 // app
 const app = express();
 
@@ -54,6 +56,7 @@ if (app.get("env")) {
 app.use("/api/auth", authRouter);
 app.use("/api/profile", profileRouter);
 app.use("/api/skill", skillRouter);
+app.use("/api/designation", designationRouter);
 
 // error handler
 // Error
