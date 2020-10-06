@@ -39,21 +39,21 @@ route.post(
  * Access               Private
  * Url                  https://localhost:4200/api/skill/:skillId
  */
-route.delete("/:skillId", deleteSkill);
+route.delete("/:skillId", currentUser, auth, admin, deleteSkill);
 
 /**
  * Method               PUT
  * Access               Private
  * Url                  https://localhost:4200/api/skill/activate/:skillId
  */
-route.put("/activate/:skillId", activeSkill);
+route.put("/activate/:skillId", currentUser, auth, admin, activeSkill);
 
 /**
  * Method               PUT
  * Access               Private
  * Url                  https://localhost:4200/api/skill/deactivate/:skillid
  */
-route.put("/deactivate/:skillId", deactiveSkill);
+route.put("/deactivate/:skillId", currentUser, auth, admin, deactiveSkill);
 
 // export
 export { route as skillRouter };

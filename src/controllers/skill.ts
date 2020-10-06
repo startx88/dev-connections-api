@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { transform } from "lodash";
-import { BadRequestError } from "../errors";
+import { BadRequestError, NotFoundError } from "../errors";
 import { admin } from "../middleware";
 import { Skill, SkillAttr, SkillDoc } from "../models/skills";
 import { responseBody, slugname, transformRespnose } from "../utility";
@@ -80,20 +80,52 @@ const addUpdateSkill = async (
 /**
  * Get all skills
  * */
-const deleteSkill = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {};
+const deleteSkill = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const skillId = req.params.skillId;
+    const skill = await Skill.findById(skillId);
+    if (!skill) {
+      throw new NotFoundError("Skill not existed");
+    }
+    await skill.remove();
+    return res.status(200).send(
+      responseBody({
+        message: "Skill deleted successfully",
+        id: skill._id,
+        data: transformRespnose(skill),
+      })
+    );
+  } catch (err) {
+    throw next(err);
+  }
+};
 
 /**
  * Get all skills
  * */
-const activeSkill = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {};
+const activeSkill = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const skillId = req.params.skillId;
+    const skill = await Skill.findById(skillId);
+    if (!skill) {
+      throw new NotFoundError("Skill not found!");
+    }
+    if (skill.active) {
+      throw new BadRequestError("Skill already activated!");
+    }
+    skill.active = true;
+    await skill.save();
+    return res.status(200).send(
+      responseBody({
+        message: "Skill active successfully",
+        id: skill._id,
+        data: transformRespnose(skill),
+      })
+    );
+  } catch (err) {
+    throw next(err);
+  }
+};
 
 /**
  * Get all skills
@@ -102,7 +134,29 @@ const deactiveSkill = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {};
+) => {
+  try {
+    const skillId = req.params.skillId;
+    const skill = await Skill.findById(skillId);
+    if (!skill) {
+      throw new NotFoundError("Skill not found!");
+    }
+    if (!skill.active) {
+      throw new BadRequestError("Skill already deactivated!");
+    }
+    skill.active = false;
+    await skill.save();
+    return res.status(200).send(
+      responseBody({
+        message: "Skill deactive successfully",
+        id: skill._id,
+        data: transformRespnose(skill),
+      })
+    );
+  } catch (err) {
+    throw next(err);
+  }
+};
 
 // export
 export { getSkills, addUpdateSkill, deleteSkill, activeSkill, deactiveSkill };
