@@ -12,7 +12,7 @@ interface UserPayload {
 declare global {
   namespace Express {
     interface Request {
-      user?: UserPayload;
+      currentUser: UserPayload;
     }
   }
 }
@@ -34,7 +34,7 @@ const currentUser = (req: Request, res: Response, next: NextFunction) => {
   } catch (err) {
     throw new AuthenticationError();
   }
-  req.user = verify;
+  req.currentUser = verify;
   if (!verify) {
     throw new AuthenticationError();
   }

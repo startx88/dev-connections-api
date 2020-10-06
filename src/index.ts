@@ -2,13 +2,13 @@ import express from "express";
 import path from "path";
 import { connectDb } from "./db";
 import { cors, errorHandler } from "./middleware";
-
 import { authRouter } from "./routes/auth";
 import { profileRouter } from "./routes/profile";
 
 // app
 const app = express();
 
+// constant
 app.set("title", "shopkart-api");
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");

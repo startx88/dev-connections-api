@@ -27,7 +27,7 @@ interface IEducation {
 
 // user attributes
 interface ProfileAttr {
-  user?: string;
+  user: string;
   company: string;
   website: string;
   location: string;
@@ -42,7 +42,7 @@ interface ProfileAttr {
 
 // profile document
 interface ProfileDoc extends mongoose.Document {
-  user?: string;
+  user: string;
   company: string;
   website: string;
   location: string;
@@ -103,7 +103,7 @@ ProfileSchema.statics.build = (attr: ProfileAttr) => {
 // export model
 const Profile = mongoose.model<ProfileDoc, ProfileModel>(
   "Profile",
-  ProfileSchema
+  ProfileSchema,
 );
 
 // export

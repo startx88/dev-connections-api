@@ -79,7 +79,7 @@ const userSchema = new Schema(
         delete _ret.__v;
       },
     },
-  }
+  },
 );
 
 // pre save hooks

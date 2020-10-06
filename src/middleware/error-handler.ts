@@ -5,8 +5,9 @@ const errorHandler = (
   error: Error,
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
+  console.log("err", error);
   if (error instanceof CustomError) {
     return res
       .status(error.statusCode)
