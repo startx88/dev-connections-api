@@ -11,10 +11,10 @@ export interface IEmployment {
   location: string;
   salary: string;
   skills: string[];
-  description?: string;
   from: Date;
   to?: Date;
   current?: boolean;
+  description?: string;
 }
 
 export interface IEducation {
@@ -26,8 +26,8 @@ export interface IEducation {
   totalMarks?: string;
   from: Date;
   to?: Date;
-  current: boolean;
-  description: string;
+  current?: boolean;
+  description?: string;
 }
 
 // user attributes
@@ -85,16 +85,16 @@ const ProfileSchema = new Schema({
   dob: { type: String },
   designation: { type: String, required: true },
   experience: { type: String, required: true },
-  salary: { type: String },
-  company: { type: String },
-  website: { type: String },
-  location: { type: String },
-  status: { type: String, required: true },
   skills: { type: [String], required: true },
+  salary: { type: String, required: true },
+  company: { type: String, required: true },
+  website: { type: String },
+  location: { type: String, required: true },
+  status: { type: String },
   bio: { type: String },
   gitusername: { type: String },
   noticeperiod: { type: String },
-  image: String,
+  image: { type: String },
   active: { type: Boolean, default: true },
   employment: [
     {
@@ -103,7 +103,7 @@ const ProfileSchema = new Schema({
       location: { type: String, required: true },
       salary: { type: String, required: true },
       skills: [String],
-      description: String,
+      description: { type: String },
       from: Date,
       to: Date,
       current: Boolean,
@@ -112,15 +112,15 @@ const ProfileSchema = new Schema({
   education: [
     {
       college: { type: String, required: true }, // kic
-      course: { type: String }, // BCA
-      subject: [String],
+      course: { type: String, required: true }, // BCA
+      subject: { type: [String], required: true },
       board: { type: String },
       medium: { type: String },
       totalMarks: { type: String },
       from: Date,
       to: Date,
       current: Boolean,
-      description: { type: String, required: true },
+      description: { type: String },
     },
   ],
   insertAt: { type: Date, default: Date.now },

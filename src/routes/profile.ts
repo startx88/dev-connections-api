@@ -1,4 +1,5 @@
 import express from "express";
+import { body } from "express-validator";
 import {
   getUserProfiles,
   getProfile,
@@ -33,7 +34,20 @@ route.get("/", getUserProfiles);
  * Access             Private
  * Url                https://localhost:4200/api/profile/me
  */
-route.post("/", currentUser, auth, addUpdateProfile);
+route.post(
+  "/",
+  currentUser,
+  auth,
+  [
+    body("designation", "designation is required").notEmpty(),
+    body("experience", "experience is required").notEmpty(),
+    body("skills", "skills is required").notEmpty(),
+    body("salary", "salary is required").notEmpty(),
+    body("company", "company is required").notEmpty(),
+    body("location", "location is required").notEmpty(),
+  ],
+  addUpdateProfile
+);
 
 //@route          GET api/profile/user/userId
 //@desc           Get user profile by userid
@@ -60,7 +74,17 @@ route.put("/status", currentUser, auth, updateStatus);
 //@route          GET api/profile/user/userId
 //@desc           Get user profile by userid
 //@access         Public
-route.put("/education", currentUser, auth, addEducation);
+route.put(
+  "/education",
+  currentUser,
+  auth,
+  [
+    body("college", "college is required!").notEmpty(),
+    body("course", "course is required!").notEmpty(),
+    body("subject", "subject is required!").notEmpty(),
+  ],
+  addEducation
+);
 
 //@route          GET api/profile/user/userId
 //@desc           Get user profile by userid
@@ -72,7 +96,20 @@ route.delete("/education/:educationId", currentUser, auth, deleteEducation);
  * URL              :  http://localhost:4200/api/profile/employment
  * ACCESS           :  PRIVATE
  */
-route.put("/employment", currentUser, auth, addEmployment);
+route.put(
+  "/employment",
+  currentUser,
+  auth,
+  [
+    body("company", "company is required!").notEmpty(),
+    body("designation", "designation is required!").notEmpty(),
+    body("location", "location is required!").notEmpty(),
+    body("salary", "salary is required!").notEmpty(),
+    body("skills", "skills is required!").notEmpty(),
+    body("from", "from is required!").notEmpty(),
+  ],
+  addEmployment
+);
 
 /**
  * METHOD           :  POST

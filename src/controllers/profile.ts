@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { BadRequestError, NotFoundError } from "../errors";
 import { Profile, ProfileDoc } from "../models/profile";
+import { User, UserDoc } from "../models/user";
 import {
   deleteFile,
   resizeImage,
@@ -85,9 +86,14 @@ const getProfileByUserId = async (
 const getProfile = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.currentUser?.id;
-    const profile = await Profile.findOne({
+    const user = (await User.findById(userId)) as UserDoc;
+    const profile = (await Profile.findOne({
       user: userId,
-    }).populate("user");
+    }).populate("user", "-password -token -expireToken")) as ProfileDoc;
+
+    if (user.role === "admin") {
+      throw new BadRequestError("You are admin, you don't have any profile.");
+    }
 
     if (!profile) {
       throw new NotFoundError("There is no profile for this user!");
@@ -219,6 +225,12 @@ const updateStatus = async (
 ) => {
   try {
     const userId = req.currentUser.id;
+
+    const user = await User.findById(userId);
+    if (user?.role === "admin") {
+      throw new BadRequestError("You are admin, you don't have any profile.");
+    }
+
     const profile = await Profile.findOne({ user: userId });
     if (!profile) {
       console.log("profile");
@@ -275,7 +287,7 @@ const addEducation = async (
       description,
     });
 
-    await profile?.save();
+    await profile.save();
 
     return res.status(200).send(
       responseBody({
