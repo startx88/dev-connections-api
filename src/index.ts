@@ -20,7 +20,7 @@ app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/uploads", express.static(path.resolve(__dirname, "..", "uploads")));
 app.use(express.static(path.resolve(__dirname, "..", "public")));
 
 // cors

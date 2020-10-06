@@ -1,7 +1,6 @@
 import fs from "fs";
 import path from "path";
 import resizeImg from "resize-img";
-import * as Multer from "multer";
 import { regExp } from "./regExp";
 
 // file name
@@ -28,9 +27,9 @@ const filterFile = (req: Request, file: any, cb: Function) => {
 };
 
 // delete file
-const deleteFile = (dir: string) => {
-  if (fs.existsSync(dir)) {
-    fs.unlink(dir, (err: any) => {
+const deleteFile = (dirPath: string) => {
+  if (fs.existsSync(dirPath)) {
+    fs.unlink(dirPath, (err: any) => {
       if (err) new Error(err);
     });
   }

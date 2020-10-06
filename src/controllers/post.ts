@@ -1,9 +1,10 @@
 import { NextFunction, Request, Response } from "express";
+import { Multer } from "multer";
 import { BadRequestError, NotFoundError } from "../errors";
 
 import { Post } from "../models/post";
 import { User, UserDoc } from "../models/user";
-import { responseBody, transformRespnose } from "../utility";
+import { deleteFile, responseBody, transformRespnose } from "../utility";
 
 /**
  * get all posts
@@ -119,16 +120,19 @@ const addUpdatePost = async (
   try {
     const postId = req.params.postId;
     const userId = req.currentUser.id;
-    const { title, description, image } = req.body;
-
+    const { title, description } = req.body;
+    const image = req.file;
     const postExist = await Post.findById(postId);
+
     if (postExist) {
       postExist.title = title;
       postExist.description = description;
-      postExist.image = image.path;
+      if (image) {
+        deleteFile(postExist.image);
+        postExist.image = image.path;
+      }
 
       await postExist.save();
-
       return res.status(200).send(
         responseBody({
           message: "Post updated successfully!",
