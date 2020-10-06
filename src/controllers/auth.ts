@@ -3,20 +3,25 @@ import { NextFunction, Request, Response } from "express";
 import { AuthenticationError, BadRequestError, NotFoundError } from "../errors";
 import { User, UserDoc } from "../models/user";
 import {
-  JWT,
   Mailer,
+  JWT,
   Password,
   responseBody,
   tokenExpireDate,
 } from "../utility";
 
-// user signup
+/**
+ * User registration
+ * @param req 
+ * @param res 
+ * @param next 
+ */
 const userSignup = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { firstname, lastname, email, password, mobile, role } = req.body;
 
     // add user
-    const user = User.createUser({
+    const user = User.build({
       firstname,
       lastname,
       email,
@@ -50,7 +55,7 @@ const userSignup = async (req: Request, res: Response, next: NextFunction) => {
         message: "User registerd successfully.",
         token: token,
         data: user,
-      })
+      }),
     );
   } catch (err) {
     next(err);
@@ -64,7 +69,7 @@ const userSignin = async (req: Request, res: Response, next: NextFunction) => {
 
     // if user exist
     const user = await User.findOne({
-      $or: [{ email: email }, { mobile: email }, { username: email }],
+      $or: [{ email: email }, { mobile: email }],
     });
 
     // throw error if user not found
@@ -76,7 +81,7 @@ const userSignin = async (req: Request, res: Response, next: NextFunction) => {
     const verify = await Password.toCompare(password, user.password);
     if (!verify) {
       throw new AuthenticationError(
-        "Password not match, please use valid password"
+        "Password not match, please use valid password",
       );
     }
 
@@ -90,17 +95,24 @@ const userSignin = async (req: Request, res: Response, next: NextFunction) => {
         message: "User loggedin!",
         token: token,
         data: user,
-      })
+      }),
     );
   } catch (err) {
     throw next(err);
   }
 };
 
+/**
+ * User verify via email 
+ * @param req 
+ * @param res 
+ * @param next 
+ */
+
 const activateAccount = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     // params
@@ -113,7 +125,7 @@ const activateAccount = async (
     // get user via token
     const user = (await User.findOneAndUpdate(
       { email: tokenInfo.email, expireToken: { $gt: new Date(Date.now()) } },
-      { $set: { verify: true } }
+      { $set: { verify: true } },
     )) as UserDoc;
 
     if (user) {
@@ -174,7 +186,7 @@ const resendEmail = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 /**
- *
+ * Forgot password
  * @param req
  * @param res
  * @param next
@@ -182,7 +194,7 @@ const resendEmail = async (req: Request, res: Response, next: NextFunction) => {
 const forgotPassword = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { email } = req.body;

@@ -1,9 +1,9 @@
 import fs from "fs";
 import path from "path";
-import { defautlConfig } from "../config";
-import * as nodemailer from "nodemailer";
-import { UserDoc } from "../models/user";
 import ejs from "ejs";
+import * as nodemailer from "nodemailer";
+import { defautlConfig } from "../config";
+import { UserDoc } from "../models/user";
 const sgTransport = require("nodemailer-sendgrid-transport");
 
 // mail body interface
@@ -33,7 +33,7 @@ class Mailer {
     const mailer = new Mailer();
     const readTemplate = fs.readFileSync(
       path.join(__dirname, "..", `views/${templateName}.ejs`),
-      "utf-8"
+      "utf-8",
     );
 
     const template = ejs.compile(readTemplate);
@@ -61,7 +61,7 @@ class Mailer {
         auth: {
           api_key: defautlConfig.EMAIL_API_KEY,
         },
-      })
+      }),
     );
   }
 

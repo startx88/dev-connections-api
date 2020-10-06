@@ -1,10 +1,12 @@
-import express from "express";
+import express, { Request, Response, NextFunction } from "express";
 import path from "path";
+import "express-async-errors";
 import { connectDb } from "./db";
 import { cors, errorHandler } from "./middleware";
 import { authRouter } from "./routes/auth";
 import { profileRouter } from "./routes/profile";
-
+import { skillRouter } from "./routes/skill";
+import { NotFoundError } from "./errors";
 // app
 const app = express();
 
@@ -51,8 +53,14 @@ if (app.get("env")) {
 // routes
 app.use("/api/auth", authRouter);
 app.use("/api/profile", profileRouter);
+app.use("/api/skill", skillRouter);
 
 // error handler
+// Error
+app.all("*", async (req: Request, res: Response, next: NextFunction) => {
+  throw next(new NotFoundError("Not found"));
+});
+
 app.use(errorHandler);
 
 // listen

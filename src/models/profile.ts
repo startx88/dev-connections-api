@@ -5,52 +5,71 @@ import { UserAttr, UserDoc } from "./user";
 const Schema = mongoose.Schema;
 
 // experience interface
-interface IExperience {
-  title: string;
+export interface IEmployment {
+  designation: string;
   company: string;
   location: string;
+  salary: string;
+  skills: string[];
+  description?: string;
   from: Date;
-  to: Date;
-  current: boolean;
-  description: string;
+  to?: Date;
+  current?: boolean;
 }
 
-interface IEducation {
-  school: string;
-  degree: string;
-  fieldofstudy: string;
+export interface IEducation {
+  college: string; // kic
+  course: string; // BCA
+  subject: string[];
+  board?: string;
+  medium?: string;
+  totalMarks?: string;
   from: Date;
-  to: Date;
+  to?: Date;
   current: boolean;
   description: string;
 }
 
 // user attributes
 interface ProfileAttr {
-  user: string;
-  company: string;
-  website: string;
-  location: string;
-  status: string;
-  skills: string[];
-  bio?: string;
-  gitusername?: string;
-  experience?: IExperience[];
+  user: string; // pradeep kumar
+  dob?: Date;
+  designation: string; // sr. software engineer
+  experience: string; // 6.5 years
+  salary: string; // 8.5 lac
+  company: string; // rsystems
+  website: string; // https://www.google.com
+  location: string; // delhi
+  status: string; // i love coding
+  skills: string[]; // html, css, js, react, vue
+  active?: boolean;
+  image?: string;
+  bio?: string; // this is my first project
+  gitusername?: string; // startx88
+  noticeperiod?: string;
+  employment?: IEmployment[];
   education?: IEducation[];
   insertAt?: Date;
 }
 
 // profile document
-interface ProfileDoc extends mongoose.Document {
-  user: string;
-  company: string;
-  website: string;
-  location: string;
-  status: string;
-  skills: string[];
-  bio?: string;
-  gitusername?: string;
-  experience?: IExperience[];
+export interface ProfileDoc extends mongoose.Document {
+  user: string; // pradeep kumar
+  dob?: Date;
+  designation: string; // sr. software engineer
+  experience: string; // 6.5 years
+  salary: string; // 8.5 lac
+  company: string; // rsystems
+  website: string; // https://www.google.com
+  location: string; // delhi
+  status: string; // i love coding
+  skills: string[]; // html, css, js, react, vue
+  active?: boolean;
+  bio?: string; // this is my first project
+  image?: string;
+  gitusername?: string; // startx88
+  noticeperiod?: string;
+  employment?: IEmployment[];
   education?: IEducation[];
   insertAt?: Date;
 }
@@ -63,6 +82,10 @@ interface ProfileModel extends mongoose.Model<ProfileDoc> {
 // Profile Schema
 const ProfileSchema = new Schema({
   user: { type: Schema.Types.ObjectId, ref: "User" },
+  dob: { type: String },
+  designation: { type: String, required: true },
+  experience: { type: String, required: true },
+  salary: { type: String },
   company: { type: String },
   website: { type: String },
   location: { type: String },
@@ -70,26 +93,33 @@ const ProfileSchema = new Schema({
   skills: { type: [String], required: true },
   bio: { type: String },
   gitusername: { type: String },
-  experience: [
+  noticeperiod: { type: String },
+  image: String,
+  employment: [
     {
-      title: { type: String, required: true },
+      designation: { type: String, required: true },
       company: { type: String, required: true },
-      location: { type: String },
-      from: { type: Date, required: true },
-      to: { type: Date },
-      current: { type: Boolean, default: false },
-      description: { type: String },
+      location: { type: String, required: true },
+      salary: { type: String, required: true },
+      skills: [String],
+      description: String,
+      from: Date,
+      to: Date,
+      current: Boolean,
     },
   ],
   education: [
     {
-      school: { type: String, required: true },
-      degree: { type: String, required: true },
-      fieldofstudy: { type: String, required: true },
-      from: { type: Date, required: true },
-      to: { type: Date },
-      current: { type: Boolean, default: false },
-      description: { type: String },
+      college: { type: String, required: true }, // kic
+      course: { type: String }, // BCA
+      subject: [String],
+      board: { type: String },
+      medium: { type: String },
+      totalMarks: { type: String },
+      from: Date,
+      to: Date,
+      current: Boolean,
+      description: { type: String, required: true },
     },
   ],
   insertAt: { type: Date, default: Date.now },
@@ -103,7 +133,7 @@ ProfileSchema.statics.build = (attr: ProfileAttr) => {
 // export model
 const Profile = mongoose.model<ProfileDoc, ProfileModel>(
   "Profile",
-  ProfileSchema,
+  ProfileSchema
 );
 
 // export

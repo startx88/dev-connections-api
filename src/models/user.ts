@@ -1,21 +1,20 @@
 import mongoose from "mongoose";
 import { Password } from "../utility";
 import { randomBytes } from "crypto";
+
 const Schema = mongoose.Schema;
 
 // user interface
 export interface UserAttr {
   firstname: string;
   lastname: string;
-  username?: string;
   email: string;
   password: string;
   mobile: string;
   role: string;
+  verify?: Boolean;
   token?: string;
   expireToken?: Date;
-  verify?: Boolean;
-  avatar?: string;
   active?: boolean;
 }
 
@@ -23,21 +22,19 @@ export interface UserAttr {
 export interface UserDoc extends mongoose.Document {
   firstname: string;
   lastname: string;
-  username?: string;
   email: string;
   password: string;
   mobile: string;
   role: string;
+  verify?: Boolean;
   token?: string;
   expireToken?: Date;
-  verify?: Boolean;
-  avatar?: string;
   active?: boolean;
 }
 
 // model type
 interface UserModel extends mongoose.Model<UserDoc> {
-  createUser(attrs: UserAttr): UserDoc;
+  build(attrs: UserAttr): UserDoc;
   generateToken(): string;
 }
 
@@ -46,7 +43,6 @@ const userSchema = new Schema(
   {
     firstname: { type: String, required: true, trim: true },
     lastname: { type: String, required: true, trim: true },
-    username: { type: String, trim: true, index: true },
     email: {
       type: String,
       required: true,
@@ -96,7 +92,7 @@ userSchema.pre("save", async function (done) {
 });
 
 // create user
-userSchema.statics.createUser = (attrs: UserAttr) => {
+userSchema.statics.build = (attrs: UserAttr) => {
   return new User(attrs);
 };
 
