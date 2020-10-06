@@ -95,6 +95,7 @@ const ProfileSchema = new Schema({
   gitusername: { type: String },
   noticeperiod: { type: String },
   image: String,
+  active: { type: Boolean, default: true },
   employment: [
     {
       designation: { type: String, required: true },

@@ -8,6 +8,7 @@ import { profileRouter } from "./routes/profile";
 import { skillRouter } from "./routes/skill";
 import { designationRouter } from "./routes/designation";
 import { NotFoundError } from "./errors";
+import { userRouter } from "./routes/user";
 
 // app
 const app = express();
@@ -54,6 +55,7 @@ if (app.get("env")) {
 // routes
 // routes
 app.use("/api/auth", authRouter);
+app.use("/api/user", userRouter);
 app.use("/api/profile", profileRouter);
 app.use("/api/skill", skillRouter);
 app.use("/api/designation", designationRouter);
