@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 import { defautlConfig } from "./config";
 import { DatabaseConnectionError } from "./errors";
 
+
+console.log('config', defautlConfig)
 // database connection
 const connectDb = async (cb: Function) => {
   try {
