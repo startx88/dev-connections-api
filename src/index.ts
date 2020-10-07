@@ -12,7 +12,7 @@ import { userRouter } from "./routes/user";
 import { postRouter } from "./routes/post";
 import { adminRouter } from "./routes/admin";
 import { categoryRouter } from "./routes/category";
-
+require("dotenv").config();
 // app
 const app = express();
 
