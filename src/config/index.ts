@@ -27,12 +27,15 @@ console.log('env', env)
 
 switch (env) {
   case "production":
-  case "prod":
     config = prodConfig;
+  case "development":
+    config = devConfig;
   default:
     config = devConfig;
 }
 
 // export
+
+console.log('merge(globalConfig, config)', merge(globalConfig, config))
 const defautlConfig = merge(globalConfig, config) as IConfig;
 export { defautlConfig };
