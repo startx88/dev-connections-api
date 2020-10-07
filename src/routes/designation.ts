@@ -17,7 +17,7 @@ const route = express.Router();
  * Access               Public
  * Url                  https://localhost:4200/api/skill
  */
-route.get("/", getDesignations);
+route.get("/", currentUser, auth, getDesignations);
 
 /**
  * Method               POST

@@ -35,7 +35,7 @@ route.get("/", getUserProfiles);
  * Url                https://localhost:4200/api/profile/me
  */
 route.post(
-  "/",
+  "/:profileId?",
   currentUser,
   auth,
   [
@@ -112,11 +112,11 @@ route.put(
 );
 
 /**
- * METHOD           :  POST
+ * METHOD           :  DELETE
  * URL              :  http://localhost:4200/api/profile/employment/:employmentId
  * ACCESS           :  Private
  */
-route.put("/employment/:employmentId", currentUser, auth, deleteEmployment);
+route.delete("/employment/:employmentId", currentUser, auth, deleteEmployment);
 
 /**
  * METHOD           :  POST
@@ -124,5 +124,12 @@ route.put("/employment/:employmentId", currentUser, auth, deleteEmployment);
  * ACCESS           :  Private
  */
 route.put("/upload", currentUser, auth, upload.single("image"), uploadImage);
+
+/**
+ * METHOD           :  POST
+ * URL              :  http://localhost:4200/api/profile/employment/:employmentId
+ * ACCESS           :  Private
+ */
+route.get("/github/:username", currentUser, auth, getGitProfile);
 
 export { route as profileRouter };

@@ -2,12 +2,14 @@ import { NextFunction, Request, Response } from "express";
 import { BadRequestError, NotFoundError } from "../errors";
 import { Profile, ProfileDoc } from "../models/profile";
 import { User, UserDoc } from "../models/user";
+import axios from "axios";
 import {
   deleteFile,
   resizeImage,
   responseBody,
   transformRespnose,
 } from "../utility";
+import { defautlConfig } from "../config";
 
 /**
  * Get user profiles
@@ -85,7 +87,7 @@ const getProfileByUserId = async (
  */
 const getProfile = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const userId = req.currentUser?.id;
+    const userId = req.currentUser.id;
     const user = (await User.findById(userId)) as UserDoc;
     const profile = (await Profile.findOne({
       user: userId,
@@ -102,7 +104,6 @@ const getProfile = async (req: Request, res: Response, next: NextFunction) => {
     return res.status(200).json(
       responseBody({
         message: "Profile fetch",
-        id: profile._id,
         data: transformRespnose(profile, "profile"),
       })
     );
@@ -119,42 +120,63 @@ const addUpdateProfile = async (
 ) => {
   try {
     const userId = req.currentUser?.id;
+    const profileId = req.params.profileId;
 
     const {
-      dob,
+      status,
+      company,
       designation,
       experience,
       salary,
-      company,
       website,
       location,
-      status,
+      qualification,
+      languages,
       skills,
-      bio,
+      avatar,
+      dob,
+      gender,
+      resume,
+      hobbies,
+      summary,
       gitusername,
+      noticeperiod,
     } = req.body;
 
-    const profileExist = await Profile.findOne({ user: userId });
+    const profileInfo = {
+      user: userId,
+      status,
+      company,
+      designation,
+      experience,
+      salary,
+      website,
+      location,
+      qualification,
+      languages,
+      skills,
+      avatar,
+      dob,
+      gender,
+      resume,
+      hobbies,
+      summary,
+      gitusername,
+      noticeperiod,
+    };
+
+    // check if user profile already existed then update profile
+    const profileExist = await Profile.findOne({
+      _id: profileId,
+      user: userId,
+    });
+
+    console.log(profileExist);
 
     if (profileExist) {
       const profile = await Profile.findOneAndUpdate(
         { user: userId },
-        {
-          $set: {
-            user: userId,
-            dob,
-            designation,
-            experience,
-            salary,
-            company,
-            website,
-            location,
-            status,
-            skills,
-            bio,
-            gitusername,
-          },
-        },
+        { $set: profileInfo },
         { new: true }
       );
 
@@ -166,27 +188,21 @@ const addUpdateProfile = async (
         })
       );
     } else {
+      const hasProfile = await Profile.findOne({ user: userId });
+      if (hasProfile) {
+        throw new BadRequestError("Profile already existed, Please update.");
+      }
       // create new profile
       const profile = Profile.build({
-        user: userId,
-        dob,
-        designation,
-        experience,
-        salary,
-        company,
-        website,
-        location,
-        status,
-        skills,
-        bio,
-        gitusername,
+        ...profileInfo,
+        education: [],
+        employment: [],
       });
 
       const result = await profile.save();
       res.status(201).send(
         responseBody({
           message: "Profile added successfully",
-          id: result._id,
           data: transformRespnose(profile, "profile"),
         })
       );
@@ -344,18 +360,20 @@ const addEmployment = async (
 ) => {
   try {
     const userId = req.currentUser.id;
+
     const profile = await Profile.findOne({ user: userId });
     if (!profile) {
       throw new NotFoundError("Profile not found!");
     }
 
     const {
-      designation,
       company,
+      designation,
       location,
       salary,
       skills,
       description,
+      award,
       from,
       to,
       current,
@@ -368,6 +386,7 @@ const addEmployment = async (
       salary,
       skills,
       description,
+      award,
       from,
       to,
       current,
@@ -401,8 +420,19 @@ const deleteEmployment = async (
       throw new NotFoundError("Profile not found!");
     }
 
+    // check if employment exist or not
+    const existEmployment = profile.employment?.find(
+      (emp: any) => emp._id.toString() === employmentId
+    );
+
+    if (!existEmployment) {
+      throw new BadRequestError(
+        "You can not delete another developer employment."
+      );
+    }
+
     const employment = profile.employment?.filter(
-      (emp: any) => emp._id !== employmentId
+      (emp: any) => emp._id.toString() !== employmentId
     );
 
     profile.employment = employment;
@@ -425,19 +455,18 @@ const uploadImage = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.currentUser.id;
     const profile = (await Profile.findOne({ user: userId })) as ProfileDoc;
-    const image = req.file;
-
-    if (!image) {
-      throw new BadRequestError("Please select file!");
-    }
-
     if (!profile) {
       throw new NotFoundError("Profile not found!");
     }
 
+    const image = req.file;
+    if (!image) {
+      throw new BadRequestError("Please select file!");
+    }
+
     if (image) {
-      deleteFile(profile?.image!);
-      profile.image = image.path;
+      deleteFile(profile.avatar);
+      profile.avatar = image.path;
     }
 
     const result = await profile.save();
@@ -449,6 +478,22 @@ const uploadImage = async (req: Request, res: Response, next: NextFunction) => {
       idd: profile._id,
       data: transformRespnose(profile, "profile"),
     });
+  } catch (err) {
+    throw next(err);
+  }
+};
+
+const getGitProfileById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.currentUser.id;
+    const profile = await Profile.findOne({ user: userId });
+    if (!profile) {
+      throw new NotFoundError("Profile not found!");
+    }
   } catch (err) {
     throw next(err);
   }
@@ -466,6 +511,20 @@ const getGitProfile = async (
     if (!profile) {
       throw new NotFoundError("Profile not found!");
     }
+
+    const uri = `https://api.github.com/users/${req.params.username}/repos?per_page=10&sort=created:asc&
+    client_id=${defautlConfig.GITHUB_CLIENT_ID}&client_secret=${defautlConfig.GITHUB_CLIENT_ID}`;
+
+    const response = await axios.get(uri, {
+      headers: { "user-agent": "node-js" },
+    });
+
+    return res.status(200).send(
+      responseBody({
+        message: "Github profile fetched!",
+        data: response.data,
+      })
+    );
   } catch (err) {
     throw next(err);
   }

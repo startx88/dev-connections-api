@@ -8,7 +8,9 @@ const admin = async (req: Request, res: Response, next: NextFunction) => {
     const user = (await User.findById(req.currentUser.id)) as UserDoc;
     console.log("user", user);
     if (user.role !== "admin") {
-      throw new BadRequestError("Admin have permission to perform this action");
+      throw new BadRequestError(
+        "Only admin have permission to perform this action!"
+      );
     }
     next();
   } catch (err) {

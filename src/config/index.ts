@@ -10,11 +10,15 @@ interface IConfig {
   PORT: number | string;
   SECRET_KEY: string;
   EMAIL_API_KEY: string;
+  GITHUB_CLIENT_ID: string;
+  GITHUB_SECRET_ID: string;
 }
 
 // global configuration
 const globalConfig = {
   EMAIL_API_KEY: process.env.EMAIL_API_KEY,
+  GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID,
+  GITHUB_SECRET_ID: process.env.GITHUB_SECRET_ID,
 };
 
 // configuration

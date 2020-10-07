@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
-import resizeImg from "resize-img";
 import { regExp } from "./regExp";
+const resizeImg = require("resize-img");
 
 // file name
 const filename = (file: any) => file.filename;
@@ -20,7 +20,9 @@ const tokenExpireDate = (time: number = 1): Date => {
 const filterFile = (req: Request, file: any, cb: Function) => {
   if (!file.originalname.match(regExp.imgReg)) {
     return cb(
-      new Error("Please upload file in these formats (jpe?g|png|giff|jfif|pmp)")
+      new Error(
+        "Please upload file in these formats (jpe?g|png|giff|jfif|pmp)",
+      ),
     );
   }
   return cb(null, true);
@@ -35,13 +37,14 @@ const deleteFile = (dirPath: string) => {
   }
 };
 
-const resizeImage = async (dir: string, width: number, height: number) => {
-  if (fs.existsSync(dir)) {
-    const image = await resizeImg(fs.readFileSync(dir), {
-      width: width,
-      height: height,
+const resizeImage = async (dir: any, width: number, height: number) => {
+  if (fs.existsSync(`${dir}`)) {
+    const image = await resizeImg(fs.readFileSync(`${dir}`), {
+      width: 200,
+      height: 150,
     });
-    fs.writeFileSync(dir, image);
+    console.log("image", image);
+    fs.writeFileSync(`${dir}`, image);
   }
 };
 
