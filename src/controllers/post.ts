@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { Multer } from "multer";
 import { BadRequestError, NotFoundError } from "../errors";
 
-import { Post } from "../models/post";
+import { Post, PostDoc } from "../models/post";
 import { User, UserDoc } from "../models/user";
 import { deleteFile, responseBody, transformRespnose } from "../utility";
 
@@ -120,6 +120,13 @@ const addUpdatePost = async (
   try {
     const postId = req.params.postId;
     const userId = req.currentUser.id;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      throw new NotFoundError("You have no permissio to add / update post.");
+    }
+
     const { title, description } = req.body;
     const image = req.file;
     const postExist = await Post.findById(postId);
@@ -149,7 +156,7 @@ const addUpdatePost = async (
       });
 
       await post.save();
-      return res.status(200).send(
+      return res.status(201).send(
         responseBody({
           message: "Post added successfully!",
           data: transformRespnose(post, "posts"),
@@ -166,6 +173,25 @@ const addUpdatePost = async (
  */
 const deletePost = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    const postId = req.params.postId;
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      throw new NotFoundError("There is no post found");
+    }
+
+    const result = await Post.findByIdAndDelete(postId);
+
+    if (result) {
+      deleteFile(post.image);
+    }
+
+    return res.status(200).send(
+      responseBody({
+        message: "Post deleted successfully",
+        data: transformRespnose(post, "posts"),
+      })
+    );
   } catch (err) {
     throw next(err);
   }
@@ -180,6 +206,27 @@ const activatePost = async (
   next: NextFunction
 ) => {
   try {
+    const postId = req.params.postId;
+    const userId = req.currentUser.id;
+    const post = await Post.findOne({ _id: postId, user: userId });
+
+    if (!post) {
+      throw new BadRequestError("This post not belong to you!");
+    }
+
+    if (post.active) {
+      throw new BadRequestError("Post already activated!");
+    }
+
+    post.active = true;
+    await post.save();
+
+    return res.status(200).send(
+      responseBody({
+        message: "Post activated!",
+        data: transformRespnose(post, "posts"),
+      })
+    );
   } catch (err) {
     throw next(err);
   }
@@ -194,6 +241,27 @@ const deactivatePost = async (
   next: NextFunction
 ) => {
   try {
+    const postId = req.params.postId;
+    const userId = req.currentUser.id;
+    const post = await Post.findOne({ _id: postId, user: userId });
+
+    if (!post) {
+      throw new BadRequestError("This post not belong to you!");
+    }
+
+    if (!post.active) {
+      throw new BadRequestError("Post already deactivated!");
+    }
+
+    post.active = false;
+    await post.save();
+
+    return res.status(200).send(
+      responseBody({
+        message: "Post deactivated!",
+        data: transformRespnose(post, "posts"),
+      })
+    );
   } catch (err) {
     throw next(err);
   }
@@ -204,6 +272,33 @@ const deactivatePost = async (
  */
 const addComment = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    const postId = req.params.postId;
+    const userId = req.currentUser.id;
+    const post = (await Post.findById(postId)) as PostDoc;
+
+    if (!post) {
+      throw new NotFoundError("Post not found!");
+    }
+
+    const { name, message } = req.body;
+    const status = message.includes("sex") ? "rejected" : "approved";
+
+    post?.comments?.push({
+      user: userId,
+      name,
+      message,
+      status,
+    });
+
+    await post.save();
+
+    return res.status(200).send(
+      responseBody({
+        message: "Comment added!",
+        id: postId,
+        data: transformRespnose(post, "posts"),
+      })
+    );
   } catch (err) {
     throw next(err);
   }
@@ -218,6 +313,35 @@ const deleteComment = async (
   next: NextFunction
 ) => {
   try {
+    const userId = req.currentUser.id;
+    const postId = req.params.postId;
+    const commentId = req.params.commentId;
+    const post = (await Post.findById(postId)) as PostDoc;
+
+    if (!post) {
+      throw new NotFoundError("Post not found!");
+    }
+
+    const comment = await post?.comments?.find(
+      (comment) =>
+        comment.user.toString() === userId &&
+        comment._id!.toString() === commentId
+    );
+
+    if (!comment) {
+      throw new BadRequestError("You can not delete another user comment!");
+    }
+
+    const comments = post.comments?.filter((com) => com._id !== commentId);
+    post.comments = comments;
+    await post.save();
+
+    return res.status(200).send(
+      responseBody({
+        message: "Comment deleted!",
+        data: transformRespnose(post, "posts"),
+      })
+    );
   } catch (err) {
     throw next(err);
   }

@@ -5,10 +5,12 @@ import { UserAttr, UserDoc } from "./user";
 const Schema = mongoose.Schema;
 
 export interface IComments {
+  _id?: string;
   user: string;
   name: string;
   message: string;
   avatar?: string;
+  status: string;
   insertAt?: Date;
 }
 
@@ -61,6 +63,11 @@ const postSchema = new Schema(
         name: { type: String, required: true },
         message: { type: String, required: true },
         avatar: { type: String },
+        status: {
+          type: String,
+          default: "pending",
+          enum: ["pending", "approved", "rejected"],
+        },
         insertAt: { type: Date, default: Date.now },
       },
     ],
