@@ -11,7 +11,7 @@ import { deleteFile, responseBody, transformRespnose } from "../utility";
 const getPosts = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const posts = (await Post.find({ active: true }).populate(
-      "user",
+      "user category",
       "-password -token -expireToken"
     )) as PostDoc[];
     return res.status(200).send(
@@ -36,7 +36,7 @@ const getPostByUser = async (
   try {
     const userId = req.params.userId;
     const posts = (await Post.find({ user: userId, active: true }).populate(
-      "user",
+      "user category",
       "-password -token -expireToken"
     )) as PostDoc[];
 
@@ -130,11 +130,12 @@ const addUpdatePost = async (
       throw new NotFoundError("You have no permission to add / update post.");
     }
 
-    const { title, description } = req.body;
+    const { title, description, category } = req.body;
     const image = req.file;
     const postExist = (await Post.findById(postId)) as PostDoc;
 
     if (postExist) {
+      postExist.category = category;
       postExist.title = title;
       postExist.description = description;
       if (image) {
@@ -152,6 +153,7 @@ const addUpdatePost = async (
       );
     } else {
       const post = Post.build({
+        category,
         user: userId,
         title,
         description,
