@@ -71,6 +71,7 @@ app.all("*", async (req: Request, res: Response, next: NextFunction) => {
 
 app.use(errorHandler);
 
+console.log("NODE_ENV", process.env.NODE_ENV);
 // listen
 
 connectDb(() => {
