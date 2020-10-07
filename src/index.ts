@@ -10,6 +10,7 @@ import { designationRouter } from "./routes/designation";
 import { NotFoundError } from "./errors";
 import { userRouter } from "./routes/user";
 import { postRouter } from "./routes/post";
+import { adminRouter } from "./routes/admin";
 
 // app
 const app = express();
@@ -61,6 +62,7 @@ app.use("/api/profile", profileRouter);
 app.use("/api/skill", skillRouter);
 app.use("/api/designation", designationRouter);
 app.use("/api/post", postRouter);
+app.use("/api/admin", adminRouter);
 
 // error handler
 // Error

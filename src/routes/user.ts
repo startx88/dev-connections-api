@@ -12,7 +12,7 @@ const route = express.Router();
  * ACCESS           :  Private
  */
 
-route.get("/", getUsers);
+route.get("/", currentUser, auth, getUsers);
 
 /**
  * METHOD           :  DELETE

@@ -324,7 +324,7 @@ const deleteComment = async (
       throw new NotFoundError("Post not found!");
     }
 
-    const comment = await post?.comments?.find(
+    const comment = await post.comments?.find(
       (comment) =>
         comment.user.toString() === userId &&
         comment._id!.toString() === commentId
