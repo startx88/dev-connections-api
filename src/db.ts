@@ -3,7 +3,7 @@ import { defautlConfig } from "./config";
 import { DatabaseConnectionError } from "./errors";
 
 
-console.log('config', defautlConfig)
+console.log('config', defautlConfig.DB)
 // database connection
 const connectDb = async (cb: Function) => {
   try {

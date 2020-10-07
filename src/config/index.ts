@@ -35,6 +35,6 @@ switch (type) {
 
 // export
 
-console.log('merge(globalConfig, config)', merge(globalConfig, config))
+
 const defautlConfig = merge(globalConfig, config) as IConfig;
 export { defautlConfig };
