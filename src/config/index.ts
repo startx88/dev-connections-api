@@ -2,7 +2,6 @@ import merge from "lodash/merge";
 import { devConfig } from "./dev";
 import { prodConfig } from "./prod";
 
-process.env.NODE_ENV = process.env.NODE_ENV || "development";
 const env = process.env.NODE_ENV;
 
 interface IConfig {
@@ -23,6 +22,8 @@ const globalConfig = {
 
 // configuration
 let config = {};
+
+console.log('env', env)
 
 switch (env) {
   case "production":
