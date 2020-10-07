@@ -11,6 +11,7 @@ import { NotFoundError } from "./errors";
 import { userRouter } from "./routes/user";
 import { postRouter } from "./routes/post";
 import { adminRouter } from "./routes/admin";
+import { categoryRouter } from "./routes/category";
 
 // app
 const app = express();
@@ -63,6 +64,7 @@ app.use("/api/skill", skillRouter);
 app.use("/api/designation", designationRouter);
 app.use("/api/post", postRouter);
 app.use("/api/admin", adminRouter);
+app.use("/api/category", categoryRouter);
 
 // error handler
 // Error
