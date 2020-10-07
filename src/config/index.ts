@@ -23,12 +23,10 @@ const globalConfig = {
 // configuration
 let config = {};
 
-console.log('env', env)
-
 switch (env) {
-  case "production":
+  case 'production':
     config = prodConfig;
-  case "development":
+  case 'development':
     config = devConfig;
   default:
     config = devConfig;
