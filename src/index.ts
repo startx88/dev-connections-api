@@ -36,7 +36,7 @@ app.use(cors);
 
 app.use((req, res, next) => {
   if ("production" === app.get("env")) {
-    res.locals.localURL = "https://dev-connections-api.herokuapp.com";
+    res.locals.localURL = "https://dev-connection-api.herokuapp.com";
   } else {
     res.locals.localURL = "http://localhost:4200";
   }
