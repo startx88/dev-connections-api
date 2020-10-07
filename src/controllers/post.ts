@@ -62,10 +62,10 @@ const getPostByUser = async (
 const getPost = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const postId = req.params.postId;
-    const post = await Post.findById(postId).populate(
+    const post = (await Post.findById(postId).populate(
       "user",
       "-password -token -expireToken"
-    );
+    )) as PostDoc;
     if (!post) {
       throw new NotFoundError("There is no post belong this postId" + postId);
     }
@@ -96,17 +96,9 @@ const loggedInUserPosts = async (
 ) => {
   try {
     const userId = req.currentUser.id;
-    const user = (await User.findById(userId).populate(
-      "user",
-      "-password -token -expireToken"
-    )) as UserDoc;
-    if (user.role === "admin") {
-      throw new BadRequestError("You are admin, you have not posts");
-    }
     const posts = await Post.find({ user: userId, active: true });
-
     if (!posts) {
-      throw new NotFoundError("There is no posts!");
+      throw new NotFoundError("You have not posts!");
     }
 
     return res.status(200).send(
@@ -132,15 +124,15 @@ const addUpdatePost = async (
     const postId = req.params.postId;
     const userId = req.currentUser.id;
 
-    const user = await User.findById(userId);
+    const user = (await User.findById(userId)) as UserDoc;
 
     if (!user) {
-      throw new NotFoundError("You have no permissio to add / update post.");
+      throw new NotFoundError("You have no permission to add / update post.");
     }
 
     const { title, description } = req.body;
     const image = req.file;
-    const postExist = await Post.findById(postId);
+    const postExist = (await Post.findById(postId)) as PostDoc;
 
     if (postExist) {
       postExist.title = title;
@@ -185,7 +177,7 @@ const addUpdatePost = async (
 const deletePost = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const postId = req.params.postId;
-    const post = await Post.findById(postId);
+    const post = (await Post.findById(postId)) as PostDoc;
 
     if (!post) {
       throw new NotFoundError("There is no post found");
@@ -219,7 +211,7 @@ const activatePost = async (
   try {
     const postId = req.params.postId;
     const userId = req.currentUser.id;
-    const post = await Post.findOne({ _id: postId, user: userId });
+    const post = (await Post.findOne({ _id: postId, user: userId })) as PostDoc;
 
     if (!post) {
       throw new BadRequestError("This post not belong to you!");
@@ -254,7 +246,7 @@ const deactivatePost = async (
   try {
     const postId = req.params.postId;
     const userId = req.currentUser.id;
-    const post = await Post.findOne({ _id: postId, user: userId });
+    const post = (await Post.findOne({ _id: postId, user: userId })) as PostDoc;
 
     if (!post) {
       throw new BadRequestError("This post not belong to you!");
@@ -294,7 +286,7 @@ const addComment = async (req: Request, res: Response, next: NextFunction) => {
     const { name, message } = req.body;
     const status = message.includes("sex") ? "rejected" : "approved";
 
-    post?.comments?.push({
+    post.comments?.push({
       user: userId,
       name,
       message,
@@ -302,7 +294,6 @@ const addComment = async (req: Request, res: Response, next: NextFunction) => {
     });
 
     await post.save();
-
     return res.status(200).send(
       responseBody({
         message: "Comment added!",
