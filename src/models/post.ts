@@ -21,6 +21,7 @@ export interface IComments {
 
 // post attribute
 export interface PostAttr {
+  category: string;
   user: string;
   title: string;
   description: string;
@@ -33,6 +34,7 @@ export interface PostAttr {
 
 // Post document interface extend
 export interface PostDoc extends mongoose.Document {
+  category: string;
   user: string;
   title: string;
   description: string;
@@ -51,6 +53,7 @@ interface PostModel extends mongoose.Model<PostDoc> {
 // post schema
 const postSchema = new Schema(
   {
+    category: { type: Schema.Types.ObjectId, ref: "Category" },
     user: { type: Schema.Types.ObjectId, ref: "User" },
     title: { type: String, required: true },
     description: { type: String, required: true },

@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { BadRequestError, NotFoundError } from "../errors";
 import { CatDoc, Category } from "../models/category";
+import { Post } from "../models/post";
 import { responseBody, slugname, transformRespnose } from "../utility";
 
 /**
@@ -79,7 +80,8 @@ const deleteCategory = async (
     if (!cateogry) {
       throw new NotFoundError("Category not found!");
     }
-    await cateogry.remove();
+    const result = await cateogry.remove();
+    await Post.deleteMany({ category: result._id }); // delete all post relative to category
     return res
       .status(200)
       .send({ data: transformRespnose(cateogry, "category") });
@@ -107,6 +109,7 @@ const activateCategory = async (
     }
     cateogry.active = true;
     await cateogry.save();
+    await Post.updateMany({ category: catId }, { $set: { active: true } }); // delete all post relative to category
     return res
       .status(200)
       .send({ data: transformRespnose(cateogry, "category") });
@@ -134,6 +137,7 @@ const deactivateCategory = async (
     }
     cateogry.active = false;
     await cateogry.save();
+    await Post.updateMany({ category: catId }, { $set: { active: false } }); // delete all post relative to category
     return res
       .status(200)
       .send({ data: transformRespnose(cateogry, "category") });
