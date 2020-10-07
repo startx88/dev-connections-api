@@ -10,10 +10,10 @@ import { deleteFile, responseBody, transformRespnose } from "../utility";
  */
 const getPosts = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const posts = await Post.find({ active: true }).populate(
+    const posts = (await Post.find({ active: true }).populate(
       "user",
       "-password -token -expireToken"
-    );
+    )) as PostDoc[];
     return res.status(200).send(
       responseBody({
         message: "Post fetched!",
@@ -35,10 +35,10 @@ const getPostByUser = async (
 ) => {
   try {
     const userId = req.params.userId;
-    const posts = await Post.find({ user: userId, active: true }).populate(
+    const posts = (await Post.find({ user: userId, active: true }).populate(
       "user",
       "-password -token -expireToken"
-    );
+    )) as PostDoc[];
 
     if (!posts) {
       throw new NotFoundError("There is not post for this user!");
@@ -381,24 +381,13 @@ const addLike = async (req: Request, res: Response, next: NextFunction) => {
       if (like.active) {
         throw new BadRequestError("You have already liked this post!");
       }
-
-      const existingLikes = post.likes as ILike[];
-      const likeIndex = existingLikes.findIndex(
-        (like: ILike) => like.user.toString() === userId
-      ) as number;
-
-      const existLike = existingLikes[likeIndex];
-      existLike.active = true;
-      existingLikes[likeIndex] = existLike;
-      post.likes = existingLikes;
+      updateLikes(post, userId, true);
     } else {
-      post.likes?.unshift({
-        user: userId,
-        active: true,
-      });
+      post.likes?.unshift({ user: userId, active: true });
     }
-    await post.save();
 
+    // save post after updating
+    await post.save();
     return res.status(200).send(
       responseBody({
         message: "You like the post!",
@@ -423,7 +412,6 @@ const removeLike = async (req: Request, res: Response, next: NextFunction) => {
     if (!post) {
       throw new NotFoundError("Post not found!");
     }
-
     // all likes
     const postLikes = post.likes?.filter(
       (like) => like.user.toString() === userId
@@ -437,20 +425,12 @@ const removeLike = async (req: Request, res: Response, next: NextFunction) => {
       if (!dislike.active) {
         throw new BadRequestError("You have already dislike this post!");
       }
-      const existLikes = post.likes as ILike[];
-      const index = existLikes.findIndex(
-        (like: ILike) => like.user.toString() === userId
-      );
-      const existLike = existLikes[index];
-      existLike.active = false;
-      existLikes[index] = existLike;
-      post.likes = existLikes;
+      updateLikes(post, userId, false);
     } else {
       post.likes?.unshift({ user: userId, active: false });
     }
 
     await post.save();
-
     return res.status(200).send(
       responseBody({
         message: "You dislike the post!",
@@ -461,6 +441,18 @@ const removeLike = async (req: Request, res: Response, next: NextFunction) => {
     throw next(err);
   }
 };
+
+// update like
+function updateLikes(post: PostDoc, userId: string, value: boolean) {
+  const existLikes = post.likes as ILike[];
+  const index = existLikes.findIndex(
+    (like: ILike) => like.user.toString() === userId
+  );
+  const existLike = existLikes[index];
+  existLike.active = value;
+  existLikes[index] = existLike;
+  post.likes = existLikes;
+}
 
 // export route
 export {
