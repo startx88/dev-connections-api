@@ -1,6 +1,5 @@
 import express, { Request, Response, NextFunction } from "express";
 import path from "path";
-import "express-async-errors";
 import { connectDb } from "./db";
 import { cors, errorHandler } from "./middleware";
 import { authRouter } from "./routes/auth";
@@ -26,14 +25,15 @@ app.use("/uploads", express.static(path.resolve(__dirname, "..", "uploads")));
 app.use(express.static(path.resolve(__dirname, "..", "public")));
 
 // cors
+app.disable("etag");
 
 const PORT = process.env.PORT || 4200;
 
 app.use(cors);
 
-app.use((req, res, next) => {
+app.use((req: Request, res: Response, next: NextFunction) => {
   if ("production" === app.get("env")) {
-    res.locals.localURL = "https://dev-connection-api.herokuapp.com";
+    res.locals.localURL = "https://dev-connections-api.herokuapp.com";
   } else {
     res.locals.localURL = "http://localhost:4200";
   }
@@ -64,14 +64,9 @@ app.use("/api/admin", adminRouter);
 app.use("/api/category", categoryRouter);
 
 // error handler
-// Error
-app.all("*", async (req: Request, res: Response, next: NextFunction) => {
-  throw next(new NotFoundError("Not found"));
-});
 
 app.use(errorHandler);
 
-console.log("NODE_ENV", process.env.NODE_ENV);
 // listen
 
 connectDb(() => {
