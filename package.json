@@ -4,7 +4,6 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc",
     "start": "ts-node -r dotenv/config src/index.ts",
     "server": "ts-node-dev -r dotenv/config src/index.ts"
   },
