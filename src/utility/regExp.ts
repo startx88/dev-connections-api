@@ -1,4 +1,5 @@
 const regExp = {
+  docReg: /\.(doc|docx|pdf)$/g,
   xlsReg: /\.(xls|xlsx)$/g,
   imgReg: /\.(jpe?g|png|gif|jfif|pmp|webp)$/g,
   password: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{8,16}$/,

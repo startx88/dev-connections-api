@@ -10,6 +10,7 @@ import {
   getPost,
   getPostByUser,
   getPosts,
+  loggedInUserPosts,
   removeLike,
 } from "../controllers/post";
 import { auth, currentUser } from "../middleware";
@@ -23,6 +24,7 @@ const upload = uploader("posts");
 const route = express.Router();
 
 /**
+ * Get all posts
  * Method               :         GET
  * URL                  :         https://localhost:4200/api/post
  * Access Level         :         Private
@@ -30,6 +32,7 @@ const route = express.Router();
 route.get("/", currentUser, auth, getPosts);
 
 /**
+ * get posts by userid
  * Method               :         GET
  * URL                  :         https://localhost:4200/api/post/:postId
  * Access Level         :         Private
@@ -37,6 +40,15 @@ route.get("/", currentUser, auth, getPosts);
 route.get("/user/:postId", currentUser, auth, getPostByUser);
 
 /**
+ * get logged in user posts
+ * Method               :         GET
+ * URL                  :         https://localhost:4200/api/post/me
+ * Access Level         :         Private
+ */
+route.get("/me", currentUser, auth, loggedInUserPosts);
+
+/**
+ * get single post
  * Method               :         GET
  * URL                  :         https://localhost:4200/api/post/:postId
  * Access Level         :         Private
@@ -44,6 +56,7 @@ route.get("/user/:postId", currentUser, auth, getPostByUser);
 route.get("/:postId", currentUser, auth, getPost);
 
 /**
+ * add / update post
  * Method               :         POST
  * URL                  :         https://localhost:4200/api/post/:postId
  * Access Level         :         Private
@@ -62,6 +75,7 @@ route.post(
 );
 
 /**
+ * delete post
  * Method               :         DELETE
  * URL                  :         https://localhost:4200/api/post/:postId
  * Access Level         :         Private
@@ -69,6 +83,7 @@ route.post(
 route.delete("/:postId", currentUser, auth, deletePost);
 
 /**
+ * activate post
  * Method               :         PUT
  * URL                  :         https://localhost:4200/api/post/activate/:postId
  * Access Level         :         Private
@@ -76,6 +91,7 @@ route.delete("/:postId", currentUser, auth, deletePost);
 route.put("/activate/:postId", currentUser, auth, activatePost);
 
 /**
+ * deactivate post
  * Method               :         PUT
  * URL                  :         https://localhost:4200/api/post/deactivate/:postId
  * Access Level         :         Private
@@ -83,18 +99,12 @@ route.put("/activate/:postId", currentUser, auth, activatePost);
 route.put("/deactivate/:postId", currentUser, auth, deactivatePost);
 
 /**
- * Method               :         PUT
- * URL                  :         https://localhost:4200/api/post/:postId
- * Access Level         :         Private
- */
-route.put("/comment", currentUser, auth, addComment);
-
-/**
+ *
  * Method               :         PUT
  * URL                  :         https://localhost:4200/api/post/comment/:postId
  * Access Level         :         Private
  */
-route.put(
+route.post(
   "/comment/:postId",
   currentUser,
   auth,
@@ -110,7 +120,7 @@ route.put(
  * URL                  :         https://localhost:4200/api/post/:postId
  * Access Level         :         Private
  */
-route.put("/comment/:postId/:commentId", currentUser, auth, deleteComment);
+route.delete("/comment/:postId/:commentId", currentUser, auth, deleteComment);
 
 /**
  * Method               :         PUT

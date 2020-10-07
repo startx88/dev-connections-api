@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { Multer } from "multer";
 import { BadRequestError, NotFoundError } from "../errors";
-import { Post, PostDoc } from "../models/post";
+import { ILike, Post, PostDoc } from "../models/post";
 import { User, UserDoc } from "../models/user";
 import { deleteFile, responseBody, transformRespnose } from "../utility";
 
@@ -10,7 +10,10 @@ import { deleteFile, responseBody, transformRespnose } from "../utility";
  */
 const getPosts = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const posts = await Post.find({ active: true });
+    const posts = await Post.find({ active: true }).populate(
+      "user",
+      "-password -token -expireToken"
+    );
     return res.status(200).send(
       responseBody({
         message: "Post fetched!",
@@ -32,7 +35,10 @@ const getPostByUser = async (
 ) => {
   try {
     const userId = req.params.userId;
-    const posts = await Post.find({ user: userId, active: true });
+    const posts = await Post.find({ user: userId, active: true }).populate(
+      "user",
+      "-password -token -expireToken"
+    );
 
     if (!posts) {
       throw new NotFoundError("There is not post for this user!");
@@ -56,7 +62,10 @@ const getPostByUser = async (
 const getPost = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const postId = req.params.postId;
-    const post = await Post.findById(postId);
+    const post = await Post.findById(postId).populate(
+      "user",
+      "-password -token -expireToken"
+    );
     if (!post) {
       throw new NotFoundError("There is no post belong this postId" + postId);
     }
@@ -87,7 +96,10 @@ const loggedInUserPosts = async (
 ) => {
   try {
     const userId = req.currentUser.id;
-    const user = (await User.findById(userId)) as UserDoc;
+    const user = (await User.findById(userId).populate(
+      "user",
+      "-password -token -expireToken"
+    )) as UserDoc;
     if (user.role === "admin") {
       throw new BadRequestError("You are admin, you have not posts");
     }
@@ -331,7 +343,9 @@ const deleteComment = async (
       throw new BadRequestError("You can not delete another user comment!");
     }
 
-    const comments = post.comments?.filter((com) => com._id !== commentId);
+    const comments = post.comments?.filter(
+      (com) => com._id?.toString() !== commentId
+    );
     post.comments = comments;
     await post.save();
 
@@ -351,16 +365,98 @@ const deleteComment = async (
  */
 const addLike = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    const userId = req.currentUser.id; // userId
+    const postId = req.params.postId; // postId
+    const post = (await Post.findById(postId)) as PostDoc;
+
+    // get all likes
+    const Likes = post.likes?.filter(
+      (like: ILike) => like.user.toString() === userId
+    ) as ILike[];
+
+    if (Likes.length > 0) {
+      const like = <ILike>(
+        post.likes?.find((like) => like.user.toString() === userId)
+      );
+      if (like.active) {
+        throw new BadRequestError("You have already liked this post!");
+      }
+
+      const existingLikes = post.likes as ILike[];
+      const likeIndex = existingLikes.findIndex(
+        (like: ILike) => like.user.toString() === userId
+      ) as number;
+
+      const existLike = existingLikes[likeIndex];
+      existLike.active = true;
+      existingLikes[likeIndex] = existLike;
+      post.likes = existingLikes;
+    } else {
+      post.likes?.unshift({
+        user: userId,
+        active: true,
+      });
+    }
+    await post.save();
+
+    return res.status(200).send(
+      responseBody({
+        message: "You like the post!",
+        data: transformRespnose(post, "posts"),
+      })
+    );
   } catch (err) {
     throw next(err);
   }
 };
 
 /**
- * delete comment
+ * Remove like from post
  */
 const removeLike = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    const userId = req.currentUser.id;
+    const postId = req.params.postId;
+
+    // get post by post id
+    const post = (await Post.findById(postId)) as PostDoc;
+    if (!post) {
+      throw new NotFoundError("Post not found!");
+    }
+
+    // all likes
+    const postLikes = post.likes?.filter(
+      (like) => like.user.toString() === userId
+    ) as ILike[];
+
+    if (postLikes.length > 0) {
+      const dislike = post.likes?.find(
+        (like: ILike) => like.user.toString() === userId
+      ) as ILike;
+
+      if (!dislike.active) {
+        throw new BadRequestError("You have already dislike this post!");
+      }
+      const existLikes = post.likes as ILike[];
+      const index = existLikes.findIndex(
+        (like: ILike) => like.user.toString() === userId
+      );
+      const existLike = existLikes[index];
+      existLike.active = false;
+      existLikes[index] = existLike;
+      post.likes = existLikes;
+    } else {
+      post.likes?.unshift({ user: userId, active: false });
+    }
+
+    await post.save();
+
+    return res.status(200).send(
+      responseBody({
+        message: "You dislike the post!",
+        data: transformRespnose(post, "posts"),
+      })
+    );
   } catch (err) {
     throw next(err);
   }

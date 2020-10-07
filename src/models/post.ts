@@ -4,6 +4,11 @@ import { UserAttr, UserDoc } from "./user";
 // schema
 const Schema = mongoose.Schema;
 
+export interface ILike {
+  user: string;
+  active: boolean;
+}
+
 export interface IComments {
   _id?: string;
   user: string;
@@ -20,7 +25,7 @@ export interface PostAttr {
   title: string;
   description: string;
   image: string;
-  likes?: { user: UserDoc; active: boolean }[];
+  likes?: ILike[];
   comments?: IComments[];
   active?: boolean;
   insertAt?: Date;
@@ -32,7 +37,7 @@ export interface PostDoc extends mongoose.Document {
   title: string;
   description: string;
   image: string;
-  likes?: { user: UserDoc; active: boolean }[];
+  likes?: ILike[];
   comments?: IComments[];
   active?: boolean;
   insertAt?: Date;

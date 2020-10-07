@@ -20,11 +20,22 @@ const tokenExpireDate = (time: number = 1): Date => {
 const filterFile = (req: Request, file: any, cb: Function) => {
   if (!file.originalname.match(regExp.imgReg)) {
     return cb(
-      new Error(
-        "Please upload file in these formats (jpe?g|png|giff|jfif|pmp)",
-      ),
+      new Error("Please upload file in these formats (jpe?g|png|giff|jfif|pmp)")
     );
   }
+
+  return cb(null, true);
+};
+
+// doc file filter
+const docFileFilter = (req: Request, file: any, cb: Function) => {
+  console.log("hello world");
+  if (!file.originalname.match(regExp.docReg)) {
+    return cb(
+      new Error("Please upload file in these formats (jpe?g|png|giff|jfif|pmp)")
+    );
+  }
+
   return cb(null, true);
 };
 
@@ -63,4 +74,5 @@ export {
   deleteFile,
   resizeImage,
   noImage,
+  docFileFilter,
 };

@@ -530,6 +530,41 @@ const getGitProfile = async (
   }
 };
 
+const addResume = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.currentUser.id;
+
+    const profile = await Profile.findOne({ user: userId });
+    const file = req.file;
+
+    if (!profile) {
+      deleteFile(file.path);
+      throw new NotFoundError("Profile not found!");
+    }
+
+    if (!file) {
+      throw new BadRequestError("Please select file!");
+    }
+
+    if (file) {
+      deleteFile(profile.resume!);
+      profile.resume = file.path;
+    }
+
+    await profile.save();
+
+    return res.status(200).send(
+      responseBody({
+        message: "Resume uploded!",
+        id: profile._id,
+        data: transformRespnose(profile, "profile"),
+      })
+    );
+  } catch (err) {
+    throw next(err);
+  }
+};
+
 export {
   getUserProfiles,
   getProfile,
@@ -543,4 +578,5 @@ export {
   deleteEmployment,
   uploadImage,
   getGitProfile,
+  addResume,
 };

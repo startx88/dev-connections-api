@@ -1,5 +1,6 @@
 import express from "express";
 import { body } from "express-validator";
+import { FileFilterCallback } from "multer";
 import {
   getUserProfiles,
   getProfile,
@@ -12,17 +13,21 @@ import {
   deleteEmployment,
   uploadImage,
   getGitProfile,
+  addResume,
 } from "../controllers/profile";
+import { BadRequestError } from "../errors";
 import { auth, currentUser } from "../middleware";
-import { uploader } from "../utility";
+import { uploader, docFileFilter } from "../utility";
 
 // upload
 const upload = uploader("profile");
+const docUpload = uploader("profile", docFileFilter);
 
 // route
 const route = express.Router();
 
 /**
+ * Fetch all profiles
  * Method             GET
  * Access             Public
  * Url                https://localhost:4200/api/profile
@@ -30,9 +35,34 @@ const route = express.Router();
 route.get("/", getUserProfiles);
 
 /**
+ * Fetch logged in user profile
  * Method             GET
  * Access             Private
  * Url                https://localhost:4200/api/profile/me
+ */
+route.get("/me", currentUser, auth, getProfile);
+
+/**
+ * Fetch profile by user id
+ * Method             GET
+ * Access             Private
+ * Url                https://localhost:4200/api/profile/user/userId
+ */
+route.get("/user/:userId", currentUser, auth, getProfileByUserId);
+
+/**
+ * Fetch github profile logged in user
+ * METHOD           :  POST
+ * URL              :  http://localhost:4200/api/profile/employment/:employmentId
+ * ACCESS           :  Private
+ */
+route.get("/github/:username", currentUser, auth, getGitProfile);
+
+/**
+ * Add / Update profile
+ * Method             GET
+ * Access             Private
+ * Url                https://localhost:4200/api/profile
  */
 route.post(
   "/:profileId?",
@@ -49,31 +79,20 @@ route.post(
   addUpdateProfile
 );
 
-//@route          GET api/profile/user/userId
-//@desc           Get user profile by userid
-//@access         Public
-route.delete("/", currentUser, auth, getProfileByUserId);
-
 /**
+ * Add / Update status
  * Method             GET
  * Access             Private
- * Url                https://localhost:4200/api/profile/me
+ * Url                https://localhost:4200/api/profile
  */
-route.get("/me", currentUser, auth, getProfile);
-
-//@route          GET api/profile/user/userId
-//@desc           Get user profile by userid
-//@access         Public
-route.get("/user/:userId", currentUser, auth, getProfileByUserId);
-
-//@route          GET api/profile/user/userId
-//@desc           Get user profile by userid
-//@access         Public
 route.put("/status", currentUser, auth, updateStatus);
 
-//@route          GET api/profile/user/userId
-//@desc           Get user profile by userid
-//@access         Public
+/**
+ * Add eduction
+ * Method             PUT
+ * Access             Private
+ * Url                https://localhost:4200/api/profile/education
+ */
 route.put(
   "/education",
   currentUser,
@@ -86,15 +105,19 @@ route.put(
   addEducation
 );
 
-//@route          GET api/profile/user/userId
-//@desc           Get user profile by userid
-//@access         Public
+/**
+ * Delete education
+ * Method             DELETE
+ * Access             Private
+ * Url                https://localhost:4200/api/profile/education/educationId
+ */
 route.delete("/education/:educationId", currentUser, auth, deleteEducation);
 
 /**
- * METHOD           :  POST
- * URL              :  http://localhost:4200/api/profile/employment
- * ACCESS           :  PRIVATE
+ * Add employment
+ * Method             PUT
+ * Access             Private
+ * Url                https://localhost:4200/api/profile/employment
  */
 route.put(
   "/employment",
@@ -112,24 +135,28 @@ route.put(
 );
 
 /**
- * METHOD           :  DELETE
- * URL              :  http://localhost:4200/api/profile/employment/:employmentId
- * ACCESS           :  Private
+ * Delete employment
+ * Method             PUT
+ * Access             Private
+ * Url                https://localhost:4200/api/profile/employment/employmentId
  */
 route.delete("/employment/:employmentId", currentUser, auth, deleteEmployment);
 
 /**
- * METHOD           :  POST
- * URL              :  http://localhost:4200/api/profile/employment/:employmentId
- * ACCESS           :  Private
+ * Upload user avatar
+ * Method             PUT
+ * Access             Private
+ * Url                https://localhost:4200/api/profile/upload
  */
 route.put("/upload", currentUser, auth, upload.single("image"), uploadImage);
 
 /**
- * METHOD           :  POST
- * URL              :  http://localhost:4200/api/profile/employment/:employmentId
- * ACCESS           :  Private
+ * Upload user resume
+ * Method             PUT
+ * Access             Private
+ * Url                https://localhost:4200/api/profile/upload
  */
-route.get("/github/:username", currentUser, auth, getGitProfile);
+route.put("/resume", currentUser, auth, docUpload.single("file"), addResume);
 
+// exports
 export { route as profileRouter };

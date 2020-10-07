@@ -10,6 +10,7 @@ export {
   resizeImage,
   slugname,
   tokenExpireDate,
+  docFileFilter,
 } from "./file";
 export { JWT } from "./jwt";
 export { uploader } from "./multer";
