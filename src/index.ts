@@ -6,7 +6,6 @@ import { authRouter } from "./routes/auth";
 import { profileRouter } from "./routes/profile";
 import { skillRouter } from "./routes/skill";
 import { designationRouter } from "./routes/designation";
-import { NotFoundError } from "./errors";
 import { userRouter } from "./routes/user";
 import { postRouter } from "./routes/post";
 import { adminRouter } from "./routes/admin";
