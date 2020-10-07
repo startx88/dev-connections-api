@@ -27,10 +27,7 @@ app.use(express.static(path.resolve(__dirname, "..", "public")));
 
 // cors
 
-const {
-  PORT = process.env.PORT || 4200,
-  SECRET_KEY = process.env.SECRET_KEY,
-} = process.env;
+const PORRT = process.env.PORT || 4200;
 
 app.use(cors);
 
