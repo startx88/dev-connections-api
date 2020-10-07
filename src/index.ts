@@ -40,17 +40,23 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-if (app.get("env")) {
-  app.get("/template", (req, res, next) => {
-    res.render("confirm", {
-      title: "Forgot password",
-      year: new Date().getFullYear(),
-      token: "dfasdfasdfdf",
-      userId: "fjdsklfjd",
-      fullname: "Pradeep Kumar",
-    });
-  });
-}
+// get
+app.get('/', function (req: Request, res: Response, next: NextFunction) {
+  res.send('hello world');
+});
+
+
+// if (app.get("env")) {
+//   app.get("/template", (req, res, next) => {
+//     res.render("confirm", {
+//       title: "Forgot password",
+//       year: new Date().getFullYear(),
+//       token: "dfasdfasdfdf",
+//       userId: "fjdsklfjd",
+//       fullname: "Pradeep Kumar",
+//     });
+//   });
+// }
 
 // routes
 // routes
