@@ -27,7 +27,7 @@ app.use(express.static(path.resolve(__dirname, "..", "public")));
 // cors
 app.disable("etag");
 
-const PORT = process.env.PORT || 4200;
+const PORT: string | number = process.env.PORT || 4200;
 
 app.use(cors);
 
