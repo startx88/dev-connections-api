@@ -4,5 +4,3 @@ export { currentUser } from "./current-user";
 export { auth } from "./auth";
 export { admin } from "./admin";
 export { cors } from "./cors";
-
-// export
