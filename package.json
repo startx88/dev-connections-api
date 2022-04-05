@@ -1,5 +1,5 @@
 {
-  "name": "dev-connections-api",
+  "name": "social-network-api",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -9,15 +9,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/startx88/dev-connections-api.git"
+    "url": "git+https://github.com/pkumar002/social-network-api.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/startx88/dev-connections-api/issues"
+    "url": "https://github.com/pkumar002/social-network-api/issues"
   },
-  "homepage": "https://github.com/startx88/dev-connections-api#readme",
+  "homepage": "https://github.com/pkumar002/social-network-api#readme",
   "dependencies": {
     "@types/bcryptjs": "^2.4.2",
     "@types/ejs": "^3.0.4",
